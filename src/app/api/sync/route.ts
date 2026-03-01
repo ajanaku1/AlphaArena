@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { syncAllTraders } from "@/server/sync/sync-traders";
 import { syncCopyPositions } from "@/server/copy/sync-copy-positions";
 
+export const dynamic = "force-dynamic";
+
 /**
  * Sync endpoint - triggers trader sync and position update.
  * Can be called by Vercel cron or manually.

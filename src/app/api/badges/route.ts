@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getUserBadges, getUserBadgeCounts } from "@/server/competition/competition-service";
 import { requireAuthAndResolve } from "@/lib/auth/middleware";
 
+export const dynamic = "force-dynamic";
+
 /**
  * GET /api/badges
  *

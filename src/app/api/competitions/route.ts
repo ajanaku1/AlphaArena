@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server"
 import { getActiveCompetitions } from "@/server/trader"
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const competitions = await getActiveCompetitions()

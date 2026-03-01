@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getActiveCompetitionWithLeaderboard } from "@/server/competition/competition-service";
 import { resolveUser } from "@/lib/auth/middleware";
 
+export const dynamic = "force-dynamic";
+
 /**
  * GET /api/leaderboard
  *

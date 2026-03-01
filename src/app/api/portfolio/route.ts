@@ -3,6 +3,8 @@ import { getUserPortfolio } from "@/server/copy/copy-service";
 import { requireAuth } from "@/lib/auth/middleware";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 /**
  * GET /api/portfolio
  *

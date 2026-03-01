@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getCurrentPrices } from "@/lib/price-service";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const prices = await getCurrentPrices();

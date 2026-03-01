@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getReferralLeaderboard } from "@/server/referral/referral-service";
 
+export const dynamic = "force-dynamic";
+
 /**
  * GET /api/referrals/leaderboard
  * 
