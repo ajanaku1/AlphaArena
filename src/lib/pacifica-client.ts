@@ -10,7 +10,7 @@
  * Docs: https://docs.pacifica.fi/api-documentation/api
  */
 
-const BASE_URL = process.env.PACIFICA_API_BASE || "https://api.pacifica.fi";
+const BASE_URL = process.env.PACIFICA_API_BASE || "https://test-api.pacifica.fi";
 const API_KEY = process.env.PACIFICA_API_KEY;
 
 // Rate limit configuration

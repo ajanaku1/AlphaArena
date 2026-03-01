@@ -69,15 +69,20 @@ export async function GET(request: NextRequest) {
     const startIndex = (page - 1) * pageSize;
     const pageData = filtered.slice(startIndex, startIndex + pageSize);
 
-    // Enrich with copier counts from local Trader table
-    const addresses = pageData.map((e) => e.address);
-    const traders = await prisma.trader.findMany({
-      where: { pacificaTraderId: { in: addresses } },
-      select: { pacificaTraderId: true, totalCopiers: true },
-    });
-    const copierMap = new Map(
-      traders.map((t) => [t.pacificaTraderId, t.totalCopiers])
-    );
+    // Enrich with copier counts from local Trader table (graceful degradation)
+    let copierMap = new Map<string, number>();
+    try {
+      const addresses = pageData.map((e) => e.address);
+      const traders = await prisma.trader.findMany({
+        where: { pacificaTraderId: { in: addresses } },
+        select: { pacificaTraderId: true, totalCopiers: true },
+      });
+      copierMap = new Map(
+        traders.map((t) => [t.pacificaTraderId, t.totalCopiers])
+      );
+    } catch {
+      // DB unavailable (e.g. SQLite on Vercel) — continue without enrichment
+    }
 
     const enrichedData = pageData.map((entry) => ({
       ...entry,

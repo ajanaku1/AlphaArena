@@ -23,15 +23,11 @@ export async function GET(request: NextRequest) {
       success: true,
       data: leaderboard,
     });
-  } catch (error) {
-    console.error("Error fetching referral leaderboard:", error);
-    
-    return NextResponse.json(
-      {
-        error: "Failed to fetch referral leaderboard",
-        message: error instanceof Error ? error.message : "Unknown error",
-      },
-      { status: 500 }
-    );
+  } catch {
+    // DB unavailable — return empty leaderboard
+    return NextResponse.json({
+      success: true,
+      data: [],
+    });
   }
 }
