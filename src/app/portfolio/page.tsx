@@ -477,6 +477,35 @@ export default function PortfolioPage() {
     visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] as const } },
   };
 
+  // Not connected — prompt wallet connection
+  if (!authenticated) {
+    return (
+      <div className="container py-20">
+        <motion.div
+          className="max-w-md mx-auto text-center space-y-6"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <div className="flex h-20 w-20 items-center justify-center border border-[#222] bg-[#0A0A0A] mx-auto">
+            <Activity className="h-10 w-10 text-lime" />
+          </div>
+          <h1 className="font-display text-2xl font-black uppercase tracking-[-1px]">
+            Connect Wallet
+          </h1>
+          <p className="text-sm text-muted-foreground font-mono leading-relaxed">
+            Connect your Solana wallet to view your copy trading portfolio.
+          </p>
+          <Link href="/arena">
+            <button className="px-6 py-2 bg-lime text-black font-mono text-[9px] uppercase tracking-[2px] font-bold hover:bg-lime/90 transition-colors">
+              Browse Traders
+            </button>
+          </Link>
+        </motion.div>
+      </div>
+    );
+  }
+
   return (
     <>
       <motion.div className="container py-8" initial="hidden" animate="visible" variants={stagger}>

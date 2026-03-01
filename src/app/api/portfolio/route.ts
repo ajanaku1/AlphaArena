@@ -26,10 +26,20 @@ export async function GET(request: NextRequest) {
     });
 
     if (!user) {
-      return NextResponse.json(
-        { error: "User not found" },
-        { status: 404 }
-      );
+      // User hasn't synced yet — return empty portfolio
+      return NextResponse.json({
+        success: true,
+        data: {
+          totalValue: 0,
+          totalAllocated: 0,
+          totalPnl: 0,
+          totalPnlPercent: 0,
+          openPositions: [],
+          closedPositions: [],
+          copiedTraders: [],
+          tradersCount: 0,
+        },
+      });
     }
 
     const portfolio = await getUserPortfolio(user.id);
@@ -39,19 +49,18 @@ export async function GET(request: NextRequest) {
       data: portfolio,
     });
   } catch {
-    // DB unavailable — return empty portfolio so the page renders
+    // DB unavailable or user not found — return empty portfolio so the page renders
     return NextResponse.json({
       success: true,
       data: {
-        summary: {
-          totalAllocated: 0,
-          totalPnl: 0,
-          totalPnlPercent: 0,
-          openPositions: 0,
-          activeTraders: 0,
-        },
-        copiedTraders: [],
+        totalValue: 0,
+        totalAllocated: 0,
+        totalPnl: 0,
+        totalPnlPercent: 0,
+        openPositions: [],
         closedPositions: [],
+        copiedTraders: [],
+        tradersCount: 0,
       },
     });
   }
