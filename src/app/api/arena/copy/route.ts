@@ -132,14 +132,10 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("[Arena Copy] Error:", error);
-    const msg = error instanceof Error ? error.message : "Unknown error";
-    const isDbError = msg.includes("prisma") || msg.includes("database") || msg.includes("SQLITE");
     return NextResponse.json(
       {
-        error: isDbError
-          ? "Copy trading requires a database. This feature is coming soon on mainnet."
-          : "Failed to copy trader",
-        message: msg,
+        error: "Failed to copy trader",
+        message: error instanceof Error ? error.message : "Unknown error",
       },
       { status: 500 }
     );

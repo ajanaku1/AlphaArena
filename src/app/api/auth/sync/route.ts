@@ -177,29 +177,13 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Error syncing user:", error);
 
-    // DB unavailable — return a transient user so the frontend still works
-    const body = await request.clone().json().catch(() => ({}));
-    const wallet = body.privyUserId || "unknown";
-    const code = `ALPHA-${wallet.slice(0, 8).toUpperCase()}`;
-
-    return NextResponse.json({
-      success: true,
-      user: {
-        id: wallet,
-        privyId: wallet,
-        email: null,
-        username: null,
-        displayName: null,
-        avatarUrl: null,
-        walletAddress: wallet,
-        referralCode: code,
-        referralPoints: 0,
-        totalPnl: 0,
-        totalAllocated: 0,
-        createdAt: new Date().toISOString(),
+    return NextResponse.json(
+      {
+        error: "Failed to sync user",
+        message: error instanceof Error ? error.message : "Unknown error",
       },
-      isNewUser: false,
-    });
+      { status: 500 }
+    );
   }
 }
 

@@ -49,14 +49,12 @@ export async function resolveUser(walletAddress: string): Promise<{
     });
 
     if (!user) {
-      // User not in DB — use wallet address as fallback identity
-      return { valid: true, user: { id: walletAddress, privyId: walletAddress } };
+      return { valid: false, error: "User not found. Please connect your wallet first." };
     }
 
     return { valid: true, user };
   } catch {
-    // DB unavailable — use wallet address as fallback identity
-    return { valid: true, user: { id: walletAddress, privyId: walletAddress } };
+    return { valid: false, error: "Failed to validate user" };
   }
 }
 

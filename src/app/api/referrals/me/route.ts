@@ -39,20 +39,15 @@ export async function GET(request: NextRequest) {
         })),
       },
     });
-  } catch {
-    // DB unavailable — return empty stats with a generated referral code
-    const walletAddress = request.headers.get("x-user-id") || "unknown";
-    const code = `ALPHA-${walletAddress.slice(0, 8).toUpperCase()}`;
+  } catch (error) {
+    console.error("Error fetching referral stats:", error);
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        referralCode: code,
-        referralPoints: 0,
-        totalReferrals: 0,
-        activeReferrals: 0,
-        recentReferrals: [],
+    return NextResponse.json(
+      {
+        error: "Failed to fetch referral stats",
+        message: error instanceof Error ? error.message : "Unknown error",
       },
-    });
+      { status: 500 }
+    );
   }
 }
