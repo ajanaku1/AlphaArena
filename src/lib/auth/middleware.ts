@@ -43,13 +43,23 @@ export async function resolveUser(walletAddress: string): Promise<{
   }
 
   try {
-    const user = await prisma.user.findUnique({
+    let user = await prisma.user.findUnique({
       where: { privyId: walletAddress },
       select: { id: true, privyId: true },
     });
 
     if (!user) {
-      return { valid: false, error: "User not found. Please connect your wallet first." };
+      // Auto-create user on first authenticated request
+      user = await prisma.user.create({
+        data: {
+          privyId: walletAddress,
+          walletAddress,
+          referralPoints: 0,
+          totalPnl: 0,
+          totalAllocated: 0,
+        },
+        select: { id: true, privyId: true },
+      });
     }
 
     return { valid: true, user };

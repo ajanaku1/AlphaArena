@@ -243,8 +243,6 @@ export default function ArenaPage() {
 
   const getCopyButtonState = (): { disabled: boolean; label: string } => {
     if (!authenticated) return { disabled: true, label: "Connect" };
-    if (accountCheck && !accountCheck.hasPacificaAccount)
-      return { disabled: true, label: "No Account" };
     return { disabled: false, label: "Copy" };
   };
 

@@ -8,6 +8,7 @@ import { Menu, X } from "lucide-react";
 import { WalletConnect } from "@/components/wallet-connect";
 import { RouteTransition } from "@/components/route-transition";
 import { Toaster } from "sonner";
+import { useWallet } from "@/hooks/use-wallet";
 
 function CursorGlow() {
   const ref = useRef<HTMLDivElement>(null);
@@ -36,8 +37,25 @@ const NAV_ITEMS = [
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { walletAddress } = useWallet();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const syncedRef = useRef<string | null>(null);
+
+  // Auto-sync user to DB on wallet connect
+  useEffect(() => {
+    if (walletAddress && walletAddress !== syncedRef.current) {
+      syncedRef.current = walletAddress;
+      fetch("/api/auth/sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          privyUserId: walletAddress,
+          walletAddress,
+        }),
+      }).catch(() => {});
+    }
+  }, [walletAddress]);
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 10);

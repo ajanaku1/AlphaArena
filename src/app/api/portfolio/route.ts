@@ -20,24 +20,19 @@ export async function GET(request: NextRequest) {
 
     const { userId: privyId } = authResult;
 
-    // Resolve internal user ID from privyId/wallet address
-    const user = await prisma.user.findUnique({
+    // Resolve internal user ID from privyId/wallet address (auto-create if needed)
+    let user = await prisma.user.findUnique({
       where: { privyId },
     });
 
     if (!user) {
-      // User hasn't synced yet — return empty portfolio
-      return NextResponse.json({
-        success: true,
+      user = await prisma.user.create({
         data: {
-          totalValue: 0,
-          totalAllocated: 0,
+          privyId,
+          walletAddress: privyId,
+          referralPoints: 0,
           totalPnl: 0,
-          totalPnlPercent: 0,
-          openPositions: [],
-          closedPositions: [],
-          copiedTraders: [],
-          tradersCount: 0,
+          totalAllocated: 0,
         },
       });
     }
