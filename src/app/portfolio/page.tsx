@@ -575,7 +575,31 @@ export default function PortfolioPage() {
           </div>
         )}
 
-        {data?.data && (
+        {/* Empty Portfolio — guide user to Arena */}
+        {data?.data && data.data.tradersCount === 0 && data.data.closedPositions.length === 0 && (
+          <motion.div variants={fadeUp} className="border border-[#222] bg-[#0A0A0A] p-12">
+            <div className="max-w-md mx-auto text-center space-y-6">
+              <div className="flex h-20 w-20 items-center justify-center border border-[#222] bg-[#111] mx-auto">
+                <Users className="h-10 w-10 text-muted-foreground opacity-40" />
+              </div>
+              <div>
+                <h2 className="font-display text-xl font-bold text-foreground mb-2">
+                  No Positions Yet
+                </h2>
+                <p className="text-sm text-muted-foreground font-mono leading-relaxed">
+                  Start copy trading by browsing the Arena leaderboard. Pick a top trader, set your allocation, and your positions will appear here.
+                </p>
+              </div>
+              <Link href="/arena">
+                <button className="px-8 py-3 bg-lime text-black font-mono text-[10px] uppercase tracking-[2px] font-bold hover:bg-[#D4FF4D] transition-colors">
+                  Browse Traders
+                </button>
+              </Link>
+            </div>
+          </motion.div>
+        )}
+
+        {data?.data && (data.data.tradersCount > 0 || data.data.closedPositions.length > 0) && (
           <>
             {/* Stats Cards */}
             <motion.div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8" variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.06 } } }}>
