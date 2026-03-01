@@ -1,0 +1,378 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// User model - represents authenticated users
+model User {
+  id              String    @id @default(cuid())
+  privyId         String    @unique
+  email           String?   @unique
+  username        String?   @unique
+  displayName     String?
+  avatarUrl       String?
+
+  // Referral system
+  referralCode    String?   @unique
+  referralPoints  Int       @default(0)
+  referredByUserId String?
+  
+  // Portfolio tracking
+  totalPnl        Float     @default(0)
+  totalAllocated  Float     @default(0)
+
+  // Trading mode
+  tradingMode     String    @default("SIMULATION") // SIMULATION | LIVE
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  walletAddress   String?   @unique
+
+  // Relations
+  copyPositions   CopyPosition[]
+  agentWallet     AgentWallet?
+  referralsSent   Referral[]        @relation("referrer")
+  referralsJoined Referral[]        @relation("referred")
+  leaderboardEntries LeaderboardEntry[]
+  badges          Badge[]
+
+  @@index([privyId])
+  @@index([email])
+  @@index([username])
+  @@index([referralCode])
+  @@index([referralPoints])
+}
+
+// Trader model - represents traders tracked from Pacifica API
+// These are wallet addresses that we monitor for copy-trading
+model Trader {
+  id                String    @id @default(cuid())
+  pacificaTraderId  String    @unique  // Wallet address on Pacifica
+  displayName       String?            // Optional display name
+  avatarUrl         String?            // Optional avatar URL
+  
+  // Performance metrics (updated via sync)
+  totalPnl          Float     @default(0)
+  winRate           Float     @default(0)
+  totalFollowers    Int       @default(0)
+  totalCopiers      Int       @default(0)
+  
+  // Account stats from Pacifica
+  accountEquity     Float     @default(0)
+  positionsCount    Int       @default(0)
+  feeLevel          Int       @default(0)
+
+  // Risk metrics (calculated during sync)
+  maxDrawdown       Float     @default(0)
+  sharpeRatio       Float     @default(0)
+  volatility        Float     @default(0)
+  profitFactor      Float     @default(0)
+  
+  // Sync tracking
+  lastSyncedAt      DateTime  @default(now())
+  firstSeenAt       DateTime  @default(now())
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  // Relations
+  strategies        Strategy[]
+  copyPositions     CopyPosition[]
+
+  @@index([pacificaTraderId])
+  @@index([totalPnl])
+  @@index([winRate])
+  @@index([lastSyncedAt])
+}
+
+// Strategy model - represents individual positions/trades from a trader
+// Each strategy entry represents a position or trading pattern
+model Strategy {
+  id              String    @id @default(cuid())
+  traderId        String
+
+  // Position details from Pacifica
+  symbol          String              // Trading pair (e.g., "BTC", "ETH")
+  side            String              // "bid" (long) or "ask" (short)
+  size            Float               // Position size
+  entryPrice      Float               // Entry price (VWAP)
+  pnl             Float     @default(0)  // Realized PnL
+
+  // Position metadata
+  margin          Float?              // Margin used (for isolated positions)
+  funding         Float     @default(0)  // Funding paid
+  isolated        Boolean   @default(false)
+
+  // Timing
+  openedAt        DateTime
+  closedAt        DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Raw Pacifica data for reference
+  rawData         String?   // JSON string of original Pacifica response
+
+  // Relations
+  trader          Trader    @relation(fields: [traderId], references: [id], onDelete: Cascade)
+  copyPositions   CopyPosition[]
+
+  @@index([traderId])
+  @@index([symbol])
+  @@index([side])
+  @@index([openedAt])
+  @@index([pnl])
+}
+
+// CopyPosition model - represents a user's simulated copy trade position
+model CopyPosition {
+  id              String    @id @default(cuid())
+  userId          String
+  traderId        String
+  strategyId      String?   // Reference to trader's original strategy (nullable for flexibility)
+  
+  // Position details (mirrored from trader's strategy)
+  symbol          String              // Trading pair (e.g., "BTC", "ETH")
+  side            String              // "LONG" or "SHORT"
+  size            Float               // Position size (proportional to allocation)
+  
+  // Pricing
+  entryPrice      Float               // Entry price when copy was opened
+  currentPrice    Float     @default(0)  // Current price (updated by sync)
+  
+  // PnL tracking
+  pnl             Float     @default(0)  // Unrealized PnL in USD
+  pnlPercent      Float     @default(0)  // PnL as percentage
+  realizedPnl     Float     @default(0)  // Realized PnL when closed
+  
+  // Allocation
+  allocationUsd   Float               // USD amount allocated to this copy
+  allocationType  String    @default("FIXED") // FIXED or PERCENTAGE
+  
+  // Position status
+  status          String    @default("OPEN")  // OPEN | CLOSED | EXECUTION_FAILED
+
+  // Copy settings (optional)
+  stopLoss        Float?              // Stop loss price
+  takeProfit      Float?              // Take profit price
+  leverage        Float     @default(1)  // Leverage multiplier
+
+  // Real execution tracking
+  executionMode   String    @default("SIMULATION") // SIMULATION | LIVE
+  pacificaOrderId String?             // Pacifica order ID for the open order
+  closeOrderId    String?             // Pacifica order ID for the close order
+
+  // Timing
+  openedAt        DateTime  @default(now())
+  closedAt        DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trader          Trader    @relation(fields: [traderId], references: [id], onDelete: Cascade)
+  strategy        Strategy? @relation(fields: [strategyId], references: [id], onDelete: SetNull)
+  tradeExecutions TradeExecution[]
+
+  @@index([userId])
+  @@index([traderId])
+  @@index([status])
+  @@index([symbol])
+}
+
+// Referral model - tracks referral relationships via Fuul
+model Referral {
+  id              String    @id @default(cuid())
+  referrerId      String
+  referredUserId  String
+  referralCode    String              // Code used for this referral
+  fuulReferralId  String?   @unique   // External Fuul referral ID
+  
+  // Points tracking
+  pointsAwarded   Int       @default(0)
+  source          String    @default("internal")  // "fuul" | "internal"
+  
+  // Status
+  isActive        Boolean   @default(true)
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  referrer        User      @relation("referrer", fields: [referrerId], references: [id], onDelete: Cascade)
+  referredUser    User      @relation("referred", fields: [referredUserId], references: [id], onDelete: Cascade)
+
+  @@index([referrerId])
+  @@index([referredUserId])
+  @@index([referralCode])
+  @@index([source])
+  @@unique([referrerId, referredUserId])
+}
+
+// Competition model - represents weekly Trading Royale competitions
+model Competition {
+  id              String    @id @default(cuid())
+  name            String
+  description     String?
+
+  // Time period
+  startAt         DateTime
+  endAt           DateTime
+  status          String    @default("ACTIVE")  // ACTIVE | COMPLETED
+
+  // Competition settings
+  prizePool       Float     @default(0)
+  maxParticipants Int?
+
+  // Rewards distribution
+  firstPlacePrize Float     @default(1000)
+  secondPlacePrize Float    @default(500)
+  thirdPlacePrize Float     @default(250)
+
+  // Stats
+  totalParticipants Int     @default(0)
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  leaderboardEntries LeaderboardEntry[]
+  badges          Badge[]
+
+  @@index([status])
+  @@index([startAt, endAt])
+}
+
+// LeaderboardEntry model - tracks user rankings in competitions
+model LeaderboardEntry {
+  id              String    @id @default(cuid())
+  competitionId   String
+  userId          String
+
+  // Ranking
+  rank            Int?
+  
+  // Performance metrics
+  pnlPercent      Float     @default(0)  // ROI percentage
+  pnlUsd          Float     @default(0)  // Total PnL in USD
+  totalAllocated  Float     @default(0)  // Total allocated
+  copiedTradersCount Int    @default(0)  // Number of traders copied
+
+  // Rewards
+  prizeWon        Float     @default(0)
+  isClaimed       Boolean   @default(false)
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  competition     Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([competitionId])
+  @@index([userId])
+  @@index([rank])
+  @@index([pnlPercent])
+  @@unique([competitionId, userId])
+}
+
+// Badge model - gamification rewards
+model Badge {
+  id              String    @id @default(cuid())
+  userId          String
+  competitionId   String?
+  
+  // Badge type
+  type            String              // ROYAL_WINNER | TOP_10 | TOP_50 | EARLY_BIRD | COMEBACK_KING
+  
+  // Metadata
+  metadata        String?   // JSON string for additional data
+  
+  createdAt       DateTime  @default(now())
+
+  // Relations
+  user            User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  competition     Competition? @relation(fields: [competitionId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([type])
+  @@index([competitionId])
+}
+
+// AgentWallet model - stores delegated trading keypairs for users
+// The server holds the agent wallet's private key to sign orders on behalf of the user
+model AgentWallet {
+  id                String    @id @default(cuid())
+  userId            String    @unique
+
+  // The agent wallet keypair (server-generated)
+  agentPublicKey    String    @unique   // base58 public key
+  agentSecretKey    String              // base58 encoded secret key
+
+  // The user's main wallet that authorized this agent
+  userWalletAddress String
+
+  // Binding status
+  status            String    @default("PENDING") // PENDING | ACTIVE | REVOKED
+  pacificaBound     Boolean   @default(false)     // Whether bind was confirmed on Pacifica
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  revokedAt         DateTime?
+
+  // Relations
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tradeExecutions   TradeExecution[]
+
+  @@index([userId])
+  @@index([agentPublicKey])
+  @@index([status])
+}
+
+// TradeExecution model - immutable audit log for every order sent to Pacifica
+model TradeExecution {
+  id                String    @id @default(cuid())
+  copyPositionId    String?
+  agentWalletId     String
+
+  // Order details
+  symbol            String
+  side              String              // "bid" or "ask"
+  amount            String              // Position size as string (Pacifica format)
+  orderType         String    @default("MARKET") // MARKET | LIMIT
+  reduceOnly        Boolean   @default(false)
+  slippagePercent   String?
+  clientOrderId     String    @unique   // Idempotency key
+
+  // Execution result
+  status            String    @default("PENDING") // PENDING | SUBMITTED | FILLED | FAILED | REJECTED
+  pacificaOrderId   String?             // Order ID returned by Pacifica
+  errorMessage      String?
+  errorCode         String?
+
+  // Timing
+  submittedAt       DateTime  @default(now())
+  filledAt          DateTime?
+
+  // Raw data for debugging
+  rawRequest        String?             // JSON of the request sent
+  rawResponse       String?             // JSON of the response received
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Relations
+  copyPosition      CopyPosition?  @relation(fields: [copyPositionId], references: [id], onDelete: SetNull)
+  agentWallet       AgentWallet    @relation(fields: [agentWalletId], references: [id], onDelete: Cascade)
+
+  @@index([copyPositionId])
+  @@index([agentWalletId])
+  @@index([status])
+  @@index([clientOrderId])
+}

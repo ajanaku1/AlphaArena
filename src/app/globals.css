@@ -1,0 +1,299 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  OBSIDIAN COMMAND Design System
+  DNA: DARK-MONO-GRID-SHARP-DENSE
+  Accent: Electric Lime #B5FF00
+  Secondary: Ice Blue #00E5FF
+  Corners: 0px everywhere
+  Typography: JetBrains Mono + Inter
+*/
+
+@layer base {
+  :root {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 91%;
+    --card: 0 0% 4%;
+    --card-foreground: 0 0% 91%;
+    --popover: 0 0% 4%;
+    --popover-foreground: 0 0% 91%;
+    --primary: 76 100% 50%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 0 0% 7%;
+    --secondary-foreground: 0 0% 91%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 53%;
+    --accent: 0 0% 10%;
+    --accent-foreground: 0 0% 91%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 91%;
+    --border: 0 0% 13%;
+    --input: 0 0% 13%;
+    --ring: 76 100% 50%;
+    --radius: 0px;
+
+    /* Obsidian Command tokens */
+    --lime: #B5FF00;
+    --lime-dim: #B5FF0020;
+    --lime-mid: #B5FF0040;
+    --ice: #00E5FF;
+    --ice-dim: #00E5FF15;
+    --positive: #00FF88;
+    --negative: #FF3344;
+    --gold: #FFD700;
+
+    /* Motion tokens */
+    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-in: cubic-bezier(0.4, 0, 1, 1);
+    --duration-fast: 100ms;
+    --duration-normal: 150ms;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Prevent iOS zoom on input focus */
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
+
+  /* Remove iOS tap highlight */
+  button,
+  a,
+  [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Respect reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* Obsidian Command utilities */
+@layer utilities {
+  .font-display {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .text-lime {
+    color: var(--lime);
+  }
+
+  .text-ice {
+    color: var(--ice);
+  }
+
+  .text-positive {
+    color: var(--positive);
+  }
+
+  .text-negative {
+    color: var(--negative);
+  }
+
+  .bg-lime {
+    background-color: var(--lime);
+  }
+
+  .bg-lime-dim {
+    background-color: var(--lime-dim);
+  }
+
+  .bg-ice-dim {
+    background-color: var(--ice-dim);
+  }
+
+  .border-lime {
+    border-color: var(--lime);
+  }
+
+  .border-lime-dim {
+    border-color: var(--lime-dim);
+  }
+
+  /* Outlined text (text stroke) */
+  .text-stroke-lime {
+    color: transparent;
+    -webkit-text-stroke: 2px var(--lime);
+  }
+
+  /* Grid background overlay */
+  .grid-overlay {
+    background-image:
+      linear-gradient(hsl(var(--border)) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--border)) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  /* Section title prefix */
+  .section-prefix::before {
+    content: '//';
+    color: var(--lime);
+    font-weight: 700;
+    margin-right: 8px;
+  }
+
+  /* Index label */
+  .data-index::before {
+    content: attr(data-index);
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    font-size: 10px;
+    color: hsl(var(--muted-foreground));
+    font-weight: 500;
+  }
+
+  /* Tabular numbers for financial data */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Status dot animation */
+  .pulse-dot {
+    animation: pulse-dot 2s infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* Glow effects */
+  .glow-lime {
+    box-shadow: 0 0 20px rgba(181, 255, 0, 0.25);
+  }
+
+  .glow-ice {
+    box-shadow: 0 0 20px rgba(0, 229, 255, 0.25);
+  }
+
+  /* Uppercase label styling */
+  .label-mono {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: hsl(var(--muted-foreground));
+    font-weight: 500;
+  }
+
+  /* Shimmer skeleton loading */
+  .skeleton-shimmer {
+    background: linear-gradient(
+      90deg,
+      #1A1A1A 0%,
+      #1A1A1A 35%,
+      rgba(181, 255, 0, 0.06) 50%,
+      #1A1A1A 65%,
+      #1A1A1A 100%
+    );
+    background-size: 800px 100%;
+    animation: shimmer 1.8s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -400px 0; }
+    100% { background-position: 400px 0; }
+  }
+
+  /* Card hover micro-interaction */
+  .card-hover {
+    transition: border-color 200ms var(--ease-out),
+                box-shadow 200ms var(--ease-out),
+                transform 200ms var(--ease-out);
+  }
+
+  .card-hover:hover {
+    border-color: #333;
+    transform: scale(1.008);
+    box-shadow: 0 0 20px rgba(181, 255, 0, 0.06),
+                0 0 0 1px rgba(181, 255, 0, 0.08);
+  }
+
+  /* Cursor glow */
+  .cursor-glow {
+    position: fixed;
+    width: 400px;
+    height: 400px;
+    pointer-events: none;
+    z-index: 40;
+    background: radial-gradient(circle, var(--lime-dim) 0%, transparent 70%);
+    transform: translate(-50%, -50%);
+    transition: opacity 0.3s;
+  }
+}
+
+/* Scrollbar — thin, minimal */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted));
+}
+
+@media (hover: hover) {
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground));
+  }
+}
+
+/* Grid background - fixed overlay */
+.grid-bg-fixed {
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(hsl(var(--border)) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--border)) 1px, transparent 1px);
+  background-size: 60px 60px;
+  opacity: 0.15;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Scanline effect */
+.scanlines {
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.03) 2px,
+    rgba(0,0,0,0.03) 4px
+  );
+  pointer-events: none;
+  z-index: 999;
+}

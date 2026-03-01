@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "skills": {
+    "design": {
+      "source": "Yonkoo11/frontend-design-skills",
+      "sourceType": "github",
+      "computedHash": "a333b1a2b9e998285a088eb99803bd0d7e78062f991927785378f7da4848cefc"
+    },
+    "frontend-design": {
+      "source": "Yonkoo11/frontend-design-skills",
+      "sourceType": "github",
+      "computedHash": "ac3dfd9b44cbc880d9bfd3d60a78e52ec1459d869b63c337c01316882bae2aca"
+    },
+    "ui-revamp": {
+      "source": "Yonkoo11/frontend-design-skills",
+      "sourceType": "github",
+      "computedHash": "bb38ecc5b609c315daa2d08763b76f59f5e5d8012163538d140f71f917d19af5"
+    }
+  }
+}
