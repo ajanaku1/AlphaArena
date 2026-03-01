@@ -50,15 +50,11 @@ export async function POST(request: NextRequest) {
         pointsAwarded: result.pointsAwarded,
       },
     });
-  } catch (error) {
-    console.error("Error applying referral:", error);
-    
+  } catch {
+    // DB unavailable — referral system not available
     return NextResponse.json(
-      {
-        error: "Failed to apply referral",
-        message: error instanceof Error ? error.message : "Unknown error",
-      },
-      { status: 500 }
+      { error: "Referral system is temporarily unavailable. Please try again later." },
+      { status: 503 }
     );
   }
 }

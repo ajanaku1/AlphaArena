@@ -219,6 +219,10 @@ export default function ArenaPage() {
   );
 
   const handleCopyClick = (entry: LeaderboardEntry) => {
+    if (!authenticated) {
+      login();
+      return;
+    }
     setSelectedTrader(entry);
     setAllocationUsd(100);
     setShowCopyModal(true);
