@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
@@ -67,8 +68,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     setMobileOpen(false);
   }, [pathname]);
 
-  const isLanding = pathname === "/";
-
   return (
     <>
       <Toaster richColors position="bottom-right" theme="dark" />
@@ -88,9 +87,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="container flex h-12 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center bg-lime">
-              <span className="text-black font-bold text-sm font-display">A</span>
-            </div>
+            <Image
+              src="/logo.png"
+              alt="AlphaArena"
+              width={32}
+              height={32}
+              className="h-8 w-8 object-contain"
+              priority
+            />
             <span className="text-base font-semibold tracking-tight text-foreground font-display">
               Alpha<span className="text-lime">Arena</span>
             </span>
@@ -173,13 +177,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <RouteTransition>{children}</RouteTransition>
       </main>
 
-      {!isLanding && (
-        <footer className="relative z-[1] border-t border-[#222] py-5 mt-16">
+      <footer className="relative z-[1] border-t border-[#222] py-5 mt-16">
           <div className="container flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <div className="flex h-5 w-5 items-center justify-center bg-lime">
-                <span className="text-black font-bold text-[9px] font-display">A</span>
-              </div>
+              <Image
+                src="/logo.png"
+                alt="AlphaArena"
+                width={20}
+                height={20}
+                className="h-5 w-5 object-contain"
+              />
               <span className="text-[10px] text-muted-foreground uppercase tracking-[1px]">
                 &copy; 2026 AlphaArena. Built on Pacifica.
               </span>
@@ -193,8 +200,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </Link>
             </div>
           </div>
-        </footer>
-      )}
+      </footer>
     </>
   );
 }

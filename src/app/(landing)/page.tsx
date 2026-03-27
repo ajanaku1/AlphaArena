@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { ArrowRight, Trophy, Users, Zap, Shield } from "lucide-react"
 import { motion } from "framer-motion"
 import { AnimatedCounter } from "@/components/animated-counter"
@@ -94,13 +95,13 @@ export default function Home() {
               transition={{ duration: 0.4, delay: 0.24, ease: [0.22, 1, 0.36, 1] }}
               className="flex gap-3 mb-16"
             >
-              <Link href="/arena">
+              <Link href="/arena" target="_blank">
                 <button className="flex items-center gap-2 px-8 py-3 bg-lime text-black text-xs font-bold uppercase tracking-[2px] hover:bg-[#D4FF4D] transition-all hover:-translate-y-0.5">
                   Enter Arena
                   <ArrowRight className="h-4 w-4" />
                 </button>
               </Link>
-              <Link href="/arena">
+              <Link href="/arena" target="_blank">
                 <button className="px-8 py-3 border border-[#333] text-muted-foreground text-xs font-medium uppercase tracking-[2px] hover:border-muted-foreground hover:text-foreground transition-all">
                   Browse Traders
                 </button>
@@ -224,7 +225,7 @@ export default function Home() {
               <p className="text-muted-foreground text-sm mb-7 font-light">
                 Connect your wallet. Copy the best. Compete for glory.
               </p>
-              <Link href="/arena">
+              <Link href="/arena" target="_blank">
                 <button className="flex items-center gap-2 px-8 py-3 bg-lime text-black text-xs font-bold uppercase tracking-[2px] hover:bg-[#D4FF4D] transition-all hover:-translate-y-0.5 mx-auto">
                   Get Started
                   <ArrowRight className="h-4 w-4" />
@@ -238,9 +239,13 @@ export default function Home() {
         <footer className="relative z-[1] border-t border-[#222] py-5">
           <div className="container flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <div className="flex h-5 w-5 items-center justify-center bg-lime">
-                <span className="text-black font-bold text-[9px] font-display">A</span>
-              </div>
+              <Image
+                src="/logo.png"
+                alt="AlphaArena"
+                width={20}
+                height={20}
+                className="h-5 w-5 object-contain"
+              />
               <span className="text-[10px] text-muted-foreground uppercase tracking-[1px]">
                 &copy; 2026 AlphaArena. Built on Pacifica.
               </span>
