@@ -95,13 +95,13 @@ export default function Home() {
               transition={{ duration: 0.4, delay: 0.24, ease: [0.22, 1, 0.36, 1] }}
               className="flex gap-3 mb-16"
             >
-              <Link href="/arena" target="_blank">
+              <Link href="/arena">
                 <button className="flex items-center gap-2 px-8 py-3 bg-lime text-black text-xs font-bold uppercase tracking-[2px] hover:bg-[#D4FF4D] transition-all hover:-translate-y-0.5">
                   Enter Arena
                   <ArrowRight className="h-4 w-4" />
                 </button>
               </Link>
-              <Link href="/arena" target="_blank">
+              <Link href="/arena">
                 <button className="px-8 py-3 border border-[#333] text-muted-foreground text-xs font-medium uppercase tracking-[2px] hover:border-muted-foreground hover:text-foreground transition-all">
                   Browse Traders
                 </button>
@@ -225,7 +225,7 @@ export default function Home() {
               <p className="text-muted-foreground text-sm mb-7 font-light">
                 Connect your wallet. Copy the best. Compete for glory.
               </p>
-              <Link href="/arena" target="_blank">
+              <Link href="/arena">
                 <button className="flex items-center gap-2 px-8 py-3 bg-lime text-black text-xs font-bold uppercase tracking-[2px] hover:bg-[#D4FF4D] transition-all hover:-translate-y-0.5 mx-auto">
                   Get Started
                   <ArrowRight className="h-4 w-4" />

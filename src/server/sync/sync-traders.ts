@@ -14,7 +14,6 @@ import { prisma } from "@/lib/prisma";
 import {
   pacifica,
   type PacificaPosition,
-  type PacificaAccountInfo,
   type PacificaTrade,
   type PacificaLeaderboardEntry,
 } from "@/lib/pacifica-client";
@@ -27,11 +26,9 @@ import { calculateRiskMetrics } from "@/lib/risk-analytics";
 const SYNC_CONFIG = {
   // List of trader wallet addresses to track
   // In production, this would come from a config file or database
-  trackedTraders: process.env.TRACKED_TRADERS?.split(",") || [
-    // Example trader addresses (replace with real ones)
-    // "42trU9A5...",
-    // "7xK9mN2p...",
-  ],
+  trackedTraders: (process.env.TRACKED_TRADERS?.split(",") || [])
+    .map((a) => a.trim())
+    .filter(Boolean),
   
   // Trade history limit for performance calculation
   tradeHistoryLimit: 100,
